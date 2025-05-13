@@ -14,8 +14,10 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Copy project files
 COPY . .
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Collect static files (optional if using admin panel)
 RUN mkdir -p /vol/web/static
 
-CMD ["gunicorn", "taskflow_api.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["/entrypoint.sh"]
