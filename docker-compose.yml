@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    command: gunicorn taskflow_api.wsgi:application --bind 0.0.0.0:8000
+    command: /entrypoint.sh
     volumes:
       - .:/app
     ports:
@@ -9,22 +9,16 @@ services:
     depends_on:
       - db
       - rabbitmq
+    env_file:
+      - .env
     environment:
-      - DEBUG=1
-      - DJANGO_SETTINGS_MODULE=taskflow_api.settings
-      - POSTGRES_DB=taskflow
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
+      POSTGRES_HOST: db
 
   db:
     image: postgres
     restart: always
-    environment:
-      POSTGRES_DB: taskflow
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+    env_file:
+      - .env
     ports:
       - "5432:5432"
 
