@@ -6,6 +6,5 @@ from tasks.tasks import log_task_action
 
 @receiver(post_save, sender=Task)
 def task_created_handler(sender, instance, created, **kwargs):
-
     if created:
         log_task_action.delay(instance.id, "created")
