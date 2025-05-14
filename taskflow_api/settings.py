@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 from decouple import config, Csv
 
@@ -127,3 +126,6 @@ DATABASES = {
 }
 
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='amqp://guest:guest@localhost:5672//')
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
