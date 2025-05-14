@@ -2,6 +2,7 @@ from celery import shared_task
 from django.utils.timezone import now
 from tasks.models import Task
 
+
 @shared_task
 def log_task_action(task_id, action):
     """Log task ID and title to a file."""
