@@ -108,7 +108,7 @@ When a task is created through the API, a Celery worker will automatically:
 - Write an entry like this to `logs/task_activity.log`:
 
 ```
-[2025-09-14 19:45:00] Task #12 ('Example Task') was created
+[2025-09-14 19:45:00] Task #12 ('Example Task') was created via Celery background task.
 ```
 
 ---
