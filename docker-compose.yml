@@ -12,7 +12,10 @@ services:
     env_file:
       - .env
     environment:
+      # Useful if override needed, else .env handles it
       POSTGRES_HOST: db
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+
 
   db:
     image: postgres
@@ -25,5 +28,20 @@ services:
   rabbitmq:
     image: rabbitmq:management
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"      # AMQP (used by Celery)
+      - "15672:15672"    # RabbitMQ management UI
+
+  celery:
+    build: .
+    command: celery -A taskflow_api worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - rabbitmq
+    env_file:
+      - .env
+    environment:
+      # Useful if override needed, else .env handles it
+      POSTGRES_HOST: db
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
