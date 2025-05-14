@@ -176,3 +176,7 @@ cython_debug/
 
 # vscode
 .vscode
+
+# logs folder remains, but the contents will be ignored.
+logs/*
+!logs/.gitkeep
