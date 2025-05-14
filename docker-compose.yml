@@ -27,3 +27,14 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+
+  celery:
+    build: .
+    command: celery -A taskflow_api worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - rabbitmq
+    env_file:
+      - .env
