@@ -15,6 +15,7 @@ A Django RESTful API for managing personal or team tasks — featuring PostgreSQ
 - ✅ Swagger UI for API documentation
 - ✅ Containerized with Docker
 - ✅ CLI scripts for development and production modes
+- ✅ Pytest-based testing with coverage
 
 ---
 
@@ -24,13 +25,16 @@ A Django RESTful API for managing personal or team tasks — featuring PostgreSQ
 taskflow-api/
 ├── taskflow_api/           # Django project (includes celery.py)
 ├── tasks/                  # App: task models, views, serializers, signals, celery tasks
+├── tests/                  # Pytest tests for models, API, celery tasks
 ├── requirements.txt        # Python dependencies
 ├── Dockerfile              # Production image for gunicorn
 ├── docker-compose.yml      # DB and RabbitMQ container setup
 ├── .env                    # Environment configuration
 ├── logs/                   # Directory for activity logs (auto-created)
 ├── run_server.sh           # Run production server (Gunicorn)
-└── start-dev-services.sh   # Run DB + RabbitMQ for development
+├── start-dev-services.sh   # Run DB + RabbitMQ for development
+├── lint-clean.sh           # Ruff lint & formatting script
+└── pytest.ini              # Pytest configuration
 ```
 
 ---
@@ -100,6 +104,26 @@ Open:
 
 ---
 
+## 🧪 Run Tests and Coverage
+
+### ▶️ Run all tests
+```bash
+pytest
+```
+
+### ▶️ Run tests **with coverage** (after installing `pytest-cov`)
+```bash
+pytest --cov=. --cov-report=term-missing
+```
+
+### ▶️ (Optional) Generate HTML coverage report
+```bash
+pytest --cov=. --cov-report=html
+# Open htmlcov/index.html in your browser
+```
+
+---
+
 ## 🧩 Celery Logging Task
 
 When a task is created through the API, a Celery worker will automatically:
@@ -139,6 +163,8 @@ docker compose up --build
 - **Broker**: RabbitMQ (Docker)
 - **Background Jobs**: Celery (activity logging)
 - **Containerization**: Docker, Docker Compose
+- **Testing**: Pytest, pytest-django, pytest-cov
+- **Linting**: Ruff
 - **CI-ready**: Gunicorn + environment-based config
 
 ---
