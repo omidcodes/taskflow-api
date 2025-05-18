@@ -2,6 +2,7 @@ import pytest
 from tasks.models import Task
 from datetime import date
 
+
 # @pytest.mark.django_db allows DB access in your test.
 @pytest.mark.django_db
 def test_task_creation():

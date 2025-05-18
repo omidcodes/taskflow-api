@@ -1,21 +1,32 @@
+version: '3.9'
+
 services:
   web:
     build: .
     command: /entrypoint.sh
     volumes:
       - .:/app
-    ports:
-      - "8000:8000"
+      - static_volume:/app/staticfiles
+    expose:
+      - "8000"  # Internal, not published to host
     depends_on:
       - db
       - rabbitmq
     env_file:
       - .env
     environment:
-      # Useful if override needed, else .env handles it
       POSTGRES_HOST: db
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
 
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    volumes:
+      - static_volume:/usr/share/nginx/html/static
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
 
   db:
     image: postgres
@@ -42,6 +53,8 @@ services:
     env_file:
       - .env
     environment:
-      # Useful if override needed, else .env handles it
       POSTGRES_HOST: db
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
+
+volumes:
+  static_volume:

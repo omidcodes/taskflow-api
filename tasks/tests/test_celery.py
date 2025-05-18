@@ -4,6 +4,7 @@ from tasks.tasks import log_task_action
 from datetime import date
 import os
 
+
 @pytest.mark.django_db
 def test_log_task_action(tmp_path, settings):
     # Ensure log directory exists
