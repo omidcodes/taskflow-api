@@ -1,8 +1,8 @@
 # 🧩 TaskFlow API
 
-![Coverage Report](https://omidcodes.github.io/taskflow-api/index.html)
-
 A Django RESTful API for managing personal or team tasks — featuring PostgreSQL, RabbitMQ, Celery, and Nginx in a Dockerized production setup.
+
+📈 [View Test Coverage Report](https://omidcodes.github.io/taskflow-api/)
 
 ---
 
