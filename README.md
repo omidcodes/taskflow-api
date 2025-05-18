@@ -1,21 +1,21 @@
-
 # 🧩 TaskFlow API
 
-A Django RESTful API for managing personal or team tasks — featuring PostgreSQL, RabbitMQ, Docker support, and developer/production-ready configurations.
+A Django RESTful API for managing personal or team tasks — featuring PostgreSQL, RabbitMQ, Celery, and Nginx in a Dockerized production setup.
 
 ---
 
 ## 🚀 Features
 
 - ✅ Django 5 + Django REST Framework
-- ✅ PostgreSQL database (via Docker)
-- ✅ RabbitMQ for background tasks (Celery integrated)
-- ✅ Asynchronous task logging using Celery
+- ✅ PostgreSQL database (Dockerized)
+- ✅ RabbitMQ for background tasks (Celery-integrated)
+- ✅ Celery task queue for async logging
+- ✅ Gunicorn for WSGI-based production serving
+- ✅ Nginx reverse proxy for HTTP routing and static file delivery
 - ✅ Environment config with `.env` and `python-decouple`
 - ✅ Swagger UI for API documentation
-- ✅ Containerized with Docker
-- ✅ CLI scripts for development and production modes
-- ✅ Pytest-based testing with coverage
+- ✅ Docker & Docker Compose for development and deployment
+- ✅ Pytest-based testing with coverage reporting
 
 ---
 
@@ -23,17 +23,18 @@ A Django RESTful API for managing personal or team tasks — featuring PostgreSQ
 
 ```
 taskflow-api/
-├── taskflow_api/           # Django project (includes celery.py)
-├── tasks/                  # App: task models, views, serializers, signals, celery tasks
-├── tests/                  # Pytest tests for models, API, celery tasks
+├── taskflow_api/           # Django project (with celery.py)
+├── tasks/                  # App: models, views, serializers, signals, celery tasks
+├── tests/                  # Pytest tests for models, views, celery
+├── Dockerfile              # Docker image for Django (Gunicorn inside)
+├── docker-compose.yml      # Full stack (Django, DB, Celery, Nginx, RabbitMQ)
+├── nginx.conf              # Nginx config for reverse proxy
+├── .env                    # Environment variables
+├── logs/                   # Log folder (created if missing)
 ├── requirements.txt        # Python dependencies
-├── Dockerfile              # Production image for gunicorn
-├── docker-compose.yml      # DB and RabbitMQ container setup
-├── .env                    # Environment configuration
-├── logs/                   # Directory for activity logs (auto-created)
-├── run_server.sh           # Run production server (Gunicorn)
-├── start-dev-services.sh   # Run DB + RabbitMQ for development
-├── lint-clean.sh           # Ruff lint & formatting script
+├── run_server.sh           # Start all services in production mode
+├── start-dev-services.sh   # Run only DB & RabbitMQ for local development
+├── lint-clean.sh           # Format & lint Python code using Ruff
 └── pytest.ini              # Pytest configuration
 ```
 
@@ -43,13 +44,13 @@ taskflow-api/
 
 - Python 3.12+
 - Docker & Docker Compose
-- Virtualenv (optional but recommended)
+- (Optional) Virtualenv for local development
 
 ---
 
 ## 📦 Setup Instructions
 
-### 🔧 1. Install Python Dependencies
+### 🔧 1. Create Virtual Environment (Optional)
 ```bash
 python3 -m venv env
 source env/bin/activate
@@ -57,7 +58,7 @@ pip install -r requirements.txt
 ```
 
 ### 🔧 2. Configure Environment
-Edit `.env` (already provided):
+Edit the `.env` file:
 ```dotenv
 DEBUG=True
 SECRET_KEY=your-secret-key
@@ -74,49 +75,35 @@ CELERY_BROKER_URL=amqp://guest:guest@localhost:5672//
 
 ---
 
-## 🧪 Development Mode
+## 🧪 Development Mode (Local Python)
 
-Use this when you want to run Django locally (`runserver`) and containers only for DB/RabbitMQ.
+Run Django and Celery locally. Use Docker for DB & RabbitMQ only.
 
-### ▶️ Start Docker Services:
 ```bash
-./start-dev-services.sh
+./start-dev-services.sh      # Start db + rabbitmq only
+python manage.py runserver   # Run Django locally
+celery -A taskflow_api worker --loglevel=info  # Start Celery
 ```
 
-> This will:
-> - Start PostgreSQL and RabbitMQ containers
-> - Stop and remove any running web container
-> - Run DB migrations automatically
-
-### ▶️ Then Run Django:
-```bash
-python3 manage.py runserver
-```
-
-### ▶️ Run Celery Worker:
-```bash
-celery -A taskflow_api worker --loglevel=info
-```
-
-Open:
-- Swagger docs: http://localhost:8000/docs/
-- API root: http://localhost:8000/api/tasks/
+> Local URLs:
+> - API: http://localhost:8000/api/tasks/
+> - Docs: http://localhost:8000/docs/
 
 ---
 
-## 🧪 Run Tests and Coverage
+## 🧪 Run Tests
 
 ### ▶️ Run all tests
 ```bash
 pytest
 ```
 
-### ▶️ Run tests **with coverage** (after installing `pytest-cov`)
+### ▶️ With coverage
 ```bash
 pytest --cov=. --cov-report=term-missing
 ```
 
-### ▶️ (Optional) Generate HTML coverage report
+### ▶️ (Optional) HTML Coverage Report
 ```bash
 pytest --cov=. --cov-report=html
 # Open htmlcov/index.html in your browser
@@ -124,48 +111,61 @@ pytest --cov=. --cov-report=html
 
 ---
 
-## 🧩 Celery Logging Task
+## 🧩 Celery Background Logging
 
-When a task is created through the API, a Celery worker will automatically:
+When a task is created via API, a background task (`log_task_action`) is triggered:
 
-- Run `log_task_action` in the background using `celery -A taskflow_api worker --loglevel=info`
-- Write an entry like this to `logs/task_activity.log`:
-
+- Logs to `logs/task_activity.log`
+- Format:
 ```
 [2025-09-14 19:45:00] Task #12 ('Example Task') was created via Celery background task.
 ```
 
 ---
 
-## 🏭 Production Mode (Dockerized Web)
+## 🏭 Production Mode (Dockerized Full Stack)
 
-### ▶️ Build & Run All Services:
+### ▶️ Start All Services
 ```bash
 ./run_server.sh
 ```
 
-> This uses Docker to run:
-> - Django (with Gunicorn)
-> - PostgreSQL
-> - RabbitMQ
+This command will:
+- Build the Docker image
+- Run Django with Gunicorn
+- Serve via Nginx on port `80`
+- Collect static files into a volume
+- Expose the full app on http://localhost/
 
-You can also run manually:
+> Alternatively:
 ```bash
 docker compose up --build
 ```
 
 ---
 
+## 🌐 Accessing App
+
+- Web App: [http://localhost/](http://localhost/)
+- API: [http://localhost/api/tasks/](http://localhost/api/tasks/)
+- Swagger Docs: [http://localhost/docs/](http://localhost/docs/)
+- RabbitMQ UI: [http://localhost:15672](http://localhost:15672) (user/pass: guest/guest)
+
+---
+
 ## 🗃️ Tech Stack
 
-- **Backend**: Django 5, DRF
-- **Database**: PostgreSQL (Docker)
-- **Broker**: RabbitMQ (Docker)
-- **Background Jobs**: Celery (activity logging)
-- **Containerization**: Docker, Docker Compose
-- **Testing**: Pytest, pytest-django, pytest-cov
-- **Linting**: Ruff
-- **CI-ready**: Gunicorn + environment-based config
+| Layer         | Tech                    |
+|---------------|-------------------------|
+| Backend       | Django 5 + DRF          |
+| Database      | PostgreSQL              |
+| Broker        | RabbitMQ                |
+| Async Tasks   | Celery                  |
+| Server        | Gunicorn + Nginx        |
+| Containers    | Docker Compose          |
+| Testing       | Pytest + pytest-cov     |
+| Linting       | Ruff                    |
+| Deployment    | Shell scripts + volumes |
 
 ---
 
