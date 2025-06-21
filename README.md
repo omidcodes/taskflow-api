@@ -70,6 +70,7 @@ Run Django and Celery locally. Use Docker for DB & RabbitMQ only.
 
 ```bash
 make dev    # using Makefile to create development envionment
+pre-commit install && pre-commit install --hook-type commit-msg -f
 python manage.py runserver   # Run Django locally
 celery -A taskflow_api worker --loglevel=info  # Start Celery
 ```
