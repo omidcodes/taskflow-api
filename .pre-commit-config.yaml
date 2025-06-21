@@ -1,0 +1,32 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+fail_fast: true
+default_install_hook_types:
+  - pre-commit
+  - pre-push
+repos:
+  - repo: local
+    hooks:
+
+      # - id: ruff-auto-fix
+      #   name: ruff-auto-fix
+      #   entry: ./run_ruff.py
+      #   language: python
+      #   types: [ python ]
+      #   always_run: true
+      #   pass_filenames: false
+
+      # - id: pytest-check
+      #   name: pytest-check
+      #   entry: make test
+      #   stages:
+      #     - pre-push
+      #   language: system
+      #   pass_filenames: false
+      #   always_run: true
+
+      - id: conventional-commits-check
+        name: Conventional Commits Check
+        entry: ./conventional_commits_check.py
+        language: python
+        stages: [commit-msg]
