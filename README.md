@@ -60,20 +60,7 @@ pip install -r requirements.txt
 ```
 
 ### 🔧 2. Configure Environment
-Edit the `.env` file:
-```dotenv
-DEBUG=True
-SECRET_KEY=your-secret-key
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,[::1]
-
-POSTGRES_DB=taskflow
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-
-CELERY_BROKER_URL=amqp://guest:guest@localhost:5672//
-```
+Copy the `.env.example` file and rename it to `.env` .
 
 ---
 
@@ -82,7 +69,7 @@ CELERY_BROKER_URL=amqp://guest:guest@localhost:5672//
 Run Django and Celery locally. Use Docker for DB & RabbitMQ only.
 
 ```bash
-./start-dev-services.sh      # Start db + rabbitmq only
+make dev    # using Makefile to create development envionment
 python manage.py runserver   # Run Django locally
 celery -A taskflow_api worker --loglevel=info  # Start Celery
 ```
