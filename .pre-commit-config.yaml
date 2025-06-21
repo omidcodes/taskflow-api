@@ -16,14 +16,14 @@ repos:
       #   always_run: true
       #   pass_filenames: false
 
-      # - id: pytest-check
-      #   name: pytest-check
-      #   entry: make test
-      #   stages:
-      #     - pre-push
-      #   language: system
-      #   pass_filenames: false
-      #   always_run: true
+      - id: pytest-check
+        name: pytest-check
+        entry: pytest
+        stages:
+          - pre-push
+        language: system
+        pass_filenames: false
+        always_run: true
 
       - id: conventional-commits-check
         name: Conventional Commits Check
